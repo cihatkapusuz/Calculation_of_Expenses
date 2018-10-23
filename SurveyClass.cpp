@@ -1,7 +1,7 @@
 #include "SurveyClass.h"
-LinkedList* members;
+
 SurveyClass::SurveyClass(){
-    members=NULL;
+    members=new LinkedList();
 }
 SurveyClass::SurveyClass(const SurveyClass& other){
     if(other.members) {
@@ -22,6 +22,7 @@ SurveyClass::SurveyClass(SurveyClass&& other){
 SurveyClass& SurveyClass:: operator=(SurveyClass&& list){
     this->members = move(list.members);
     list.members=NULL;
+    return *this;
 }
 SurveyClass::~SurveyClass(){
     if(members){
@@ -35,7 +36,7 @@ void SurveyClass :: handleNewRecord(string _name, float _amount){
     while(p && p->name!=_name){
         p = p->next;
     }
-    if(p->name==_name){
+    if(p){
         members->updateNode(_name, _amount);
     }
     else{
@@ -45,30 +46,30 @@ void SurveyClass :: handleNewRecord(string _name, float _amount){
 // Calculates and returns the minimum amount of expense.
 // The minimum amount can have up to two decimal points.
 float SurveyClass :: calculateMinimumExpense(){
-    float a;
+    float min = members->head->amount;
     Node* p = members->head;
     if(p) {
-        while (p!=NULL){
-            if(p->next && p->amount < p->next->amount){
-                a=p->amount;
+        while (p){
+            if(min > p->amount) {
+                min = p->amount;
             }
             p=p->next;
         }
     }
-    return a;
+    return min;
 }
 // Calculates and returns the maximum amount of expense.
 // The maximum amount can have up to two decimal points.
 float SurveyClass :: calculateMaximumExpense(){
-    float a=0;
+    float max=members->head->amount;
     Node* p = members->head;
     while (p){
-        if(p->next && p->amount > p->next->amount){
-            a=p->amount;
+        if(max < p->amount){
+            max=p->amount;
         }
         p=p->next;
     }
-    return a;
+    return max;
 }
 // Calculates and returns the average amount of expense.
 // The average amount can have up to two decimal points.
@@ -82,5 +83,6 @@ float SurveyClass :: calculateAverageExpense(){
         p=p->next;
     }
     int temp = (int)((overall/count)*100);
-    return temp/100.0;
+    return ((float) temp) / 100;
 }
+
